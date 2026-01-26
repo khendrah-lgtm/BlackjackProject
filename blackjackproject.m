@@ -11,6 +11,7 @@ clc
 %% Game Initialization
 myDeck=innitDeck();
 playingDeck=shuffleDeck(myDeck);
+innitDeck = [1:52]
 %% Main Loop
 while(number of players>0 or players decide to end)
 
