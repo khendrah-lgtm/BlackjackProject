@@ -4,19 +4,27 @@ clear
 clc
 
 %% Player input initialization
-% Need inputs for how many players and initial $
+myPlayers= table(); 
+nPlayers= input("How many players at the table? "); 
+names = [];
+for i=1:nPlayers  % for every iteration, 1:nPlayers recieve a name, i.e. names{1}= Player James)
+    names{i} = string(input("Player "+i+" name: ", "s"));
+end
+
+myPlayers.name= names';
+myPlayers.money= repmat(10, [nPlayers,1]) % (money, [player, 1])% Need inputs for how many players and initial $
 % Need larger loop for how long to play
 % Initialize player variables
 
 %% Game Initialization
-myDeck=innitDeck();
-playingDeck=shuffleDeck(myDeck);
+newDeck=innitDeck();
+playingDeck=shuffleDeck(newDeck);
 %% Main Loop
 while(number of players>0 or players decide to end)
 
 
 % take initial bets
-playingDeck=shuffleDeck(myDeck)
+playingDeck=shuffleDeck(newDeck)
 
 
 % create loop for dealing cards
