@@ -30,12 +30,31 @@ isHuman(1) = true;
 % create deck
 myDeck = innitDeck();
 % shuffle deck
-playingDeck=shuffleDeck(myDeck);
-% testing
-disp(length(playingDeck))
-disp(playingDeck(1))
-% point to next card to deal 
-deckIndex = 1;
+playingDeck = shuffleDeck(myDeck);
+
+% hands: each player gets a struct array of cards
+playerHands = cell(1, numPlayers);
+dealerHand = [];
+
+% deal 2 cards to each player
+for p = 1:numPlayers
+    [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
+    [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
+end
+
+% deal 2 cards to dealer
+[dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+[dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+
+% Display initial hands
+
+for p = 1:numPlayers
+    fprintf('Player %d hand: ', p);
+    displayHand(playerHands{p});
+end
+
+fprintf('Dealer shows: ');
+displayHand(dealerHand(1));
 
 %% Local Functions:
 
@@ -68,6 +87,25 @@ function shuffledDeck = shuffleDeck(myDeck)
     
     order = randperm(length(myDeck));
     shuffledDeck = myDeck(order);
+end
+
+function [hand, shuffledDeck] = dealCards(shuffledDeck, hand)
+    % Take the top card from the deck and add it to the hand.
+    % Remove that card from the deck (shuffledDeck(1)=[]).
+    
+    hand = [hand, shuffledDeck(1)];
+    shuffledDeck(1) = [];
+end
+
+function displayHand(hand)
+% Display cards in the command window as "Rank of Suit"
+    for i = 1:length(hand)
+        fprintf('%s of %s', hand(i).rank, hand(i).suit);
+        if i < length(hand)
+            fprintf(', ');
+        end
+    end
+        fprintf('\n');
 end
 
 %{
