@@ -3,6 +3,8 @@
 clear
 clc
 
+%% test change
+
 %% Player input initialization
 % Need inputs for how many players and initial $
 % Need larger loop for how long to play
