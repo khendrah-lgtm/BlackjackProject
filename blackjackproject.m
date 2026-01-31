@@ -3,16 +3,74 @@
 clear
 clc
 
-%% test change
-
 %% Player input initialization
 % Need inputs for how many players and initial $
 % Need larger loop for how long to play
 % Initialize player variables
 
+% Leo's thoughts:
+% 1. Get the number of players, ideally >=2
+% 2. Get players struct array
+    % - player 1 is the user
+    % - player 2 is a bot
+
+numPlayers = input('Enter the number of players, must be 2 or greater ');
+% Check if the number of players entered is valid
+while numPlayers < 2 || numPlayers ~= floor(numPlayers) 
+    numPlayers = input("Inter a valid number of players. Must be 2 or greater");
+end
+
+keepPlaying = true;
+
 %% Game Initialization
-myDeck=innitDeck();
+% set the humans vs the bots
+isHuman = false(1, numPlayers);
+isHuman(1) = true;
+
+% create deck
+myDeck = innitDeck();
+% shuffle deck
 playingDeck=shuffleDeck(myDeck);
+% testing
+disp(length(playingDeck))
+disp(playingDeck(1))
+% point to next card to deal 
+deckIndex = 1;
+
+%% Local Functions:
+
+function myDeck = innitDeck()
+
+    % create a loop for each suit
+    % should my deck be: array, tables, structures
+    % Align card values, suits
+
+    suits = ["Hearts","Diamonds","Clubs","Spades"];
+    ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+    values = [11, 2,3,4,5,6,7,8,9,10,10,10,10]; % Ace starts as 11
+    myDeck(52) = struct('suit',"", 'rank',"", 'value',0);
+    
+    idx = 1;
+    for s = 1:length(suits)
+        for r = 1:length(ranks)
+            myDeck(idx).suit = suits(s);
+            myDeck(idx).rank = ranks(r);
+            myDeck(idx).value = values(r);
+            idx = idx + 1;
+        end
+    end
+end 
+
+function shuffledDeck = shuffleDeck(myDeck)
+    % use randperm to shuffle deck, numbers 1-52
+    % return shuffled deck
+    % Shuffle deck using randperm (1-52)
+    
+    order = randperm(length(myDeck));
+    shuffledDeck = myDeck(order);
+end
+
+%{
 %% Main Loop
 while(number of players>0 or players decide to end)
 
@@ -30,16 +88,6 @@ end
 
 
 %% my local functions
-function shuffledDeck=shuffleDeck(myDeck)
-% use randperm to shuffle deck, numbers 1-52
-% return shuffled deck
-end
-
-function myDeck=innitDeck()
-% create a loop for each suit
-% should my deck be: array, tables, structures
-% Align card values, suits
-end
 
 function [updatedPlayer, updatedDeck]=dealCards(shuffledDeck, player)
 % think about player variable: arrays, tables, structures
@@ -57,3 +105,4 @@ function updatedDealer=dealerLogic(dealerHand)
 % need logic here to determine if the dealer should hit or stand
 % while loop, dealer hand <17 dealer needs to hit
 end
+%}
