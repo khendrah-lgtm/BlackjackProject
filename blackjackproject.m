@@ -17,7 +17,7 @@ clc
 numPlayers = input('Enter the number of players, must be 2 or greater ');
 % Check if the number of players entered is valid
 while numPlayers < 2 || numPlayers ~= floor(numPlayers) 
-    numPlayers = input("Inter a valid number of players. Must be 2 or greater");
+    numPlayers = input("Enter a valid number of players. Must be 2 or greater");
 end
 
 keepPlaying = true;
