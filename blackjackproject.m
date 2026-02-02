@@ -150,7 +150,7 @@ function myDeck = innitDeck()
     ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
     % Define Blackjack values corresponding to each rank:
-    values = [11, 2,3,4,5,6,7,8,9,10,10,10,10]; % Ace starts as 11
+    values = [11, 2,3,4,5,6,7,8,9,10,10,10,10]; % Ace starts out as 11
 
     % Preallocate deck array for efficiency
     myDeck(52) = struct('suit',"", 'rank',"", 'value',0);
@@ -227,7 +227,7 @@ end
 function displayHand(hand)
 % Display all cards in a hand in the command window with the format "Rank of Suit"
     
-    % Loop throug heach card in the hand
+    % Loop through each card in the hand
     for i = 1:length(hand)
         fprintf('%s of %s', hand(i).rank, hand(i).suit);
 
@@ -243,7 +243,7 @@ end
 
 function total = handValue(hand)
 % Calculates the total Blackjack value of a hand
-% Aces are counted as 11 unless total exceeds 21, in which case Aces are reduced to 1 as needed
+% Aces are counted as 11 unless the total exceeds 21, in which case Aces are reduced to 1 as needed
 
     % Extract values from hand:
     vals = [hand.value];
@@ -336,6 +336,7 @@ function showTable(playerHands, dealerHand, hideDealerHoleCard)
 end
 
 
+
 %{ 
 Original Pseudocode:
 
@@ -346,7 +347,7 @@ clc
 
 %% Player input initialization
 % Need inputs for how many players and initial $
-% Need larger loop for how long to play
+% Need a larger loop for how long to play
 % Initialize player variables
 
 %% Game Initialization
@@ -359,9 +360,9 @@ while(number of players>0 or players decide to end)
 % take initial bets
 playingDeck=shuffleDeck(myDeck)
 
+% create a loop for dealing cards
 
-% create loop for dealing cards
-% display information in command window, needs to be for players and dealer
+% display information in the command window, needs to be for players and dealer
 
 % hit/stand logic, use functions from below
 
@@ -376,7 +377,7 @@ end
 
 function myDeck=innitDeck()
 % create a loop for each suit
-% should my deck be: array, tables, structures
+% Should my deck be: array, tables, structures
 % Align card values, suits
 end
 
