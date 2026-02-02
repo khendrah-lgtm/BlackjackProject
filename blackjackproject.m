@@ -1,18 +1,7 @@
 %% Blackjack Code
 
-clear
+clear all
 clc
-
-%% Player input initialization
-% Need inputs for how many players and initial $
-% Need larger loop for how long to play
-% Initialize player variables
-
-% Leo's thoughts:
-% 1. Get the number of players, ideally >=2
-% 2. Get players struct array
-    % - player 1 is the user
-    % - player 2 is a bot
 
 %% Setup
 
@@ -57,20 +46,9 @@ while keepPlaying
     myDeck = innitDeck();
     % shuffle deck
     playingDeck = shuffleDeck(myDeck);
-    
-    % hands: each player gets a struct array of cards
-    playerHands = cell(1, numPlayers);
-    dealerHand = [];
-    
-    % deal 2 cards to each player
-    for p = 1:numPlayers
-        [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
-        [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
-    end
-    
-    % deal 2 cards to dealer
-    [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
-    [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+
+    % Deal the initial hands
+    [playerHands, dealerHand, playingDeck] = dealInitialHands(playingDeck, numPlayers);
     
     % Display initial hands
     
@@ -93,14 +71,6 @@ while keepPlaying
         % pause makes game more readable
         pause(1);
     end
-
-    % Auto win condition, if a player hits a blackjack
-
-    if handValue(playerHands{p}) == 21
-        fprintf('Player %d has BLACKJACK!\n', p);
-    else
-        [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
-    end
     
     % Dealer turn (hit until 17)
     
@@ -115,6 +85,7 @@ while keepPlaying
         fprintf('Dealer hits: ');
         displayHand(dealerHand);
         fprintf('Value: %d\n', handValue(dealerHand));
+        pause(1);
     end
     
     if handValue(dealerHand) > 21
@@ -146,7 +117,7 @@ while keepPlaying
         elseif playerVal < dealerVal
             fprintf('-> LOSE\n\n');
         else
-            fprintf('-> PUSH\n\n');
+            fprintf('-> PUSH (TIE)\n\n');
         end
     end
     
@@ -197,6 +168,23 @@ function shuffledDeck = shuffleDeck(myDeck)
     
     order = randperm(length(myDeck));
     shuffledDeck = myDeck(order);
+end
+
+function [playerHands, dealerHand, deck] = dealInitialHands(deck, numPlayers)
+% Deals the initial two cards to each player and two cards to the dealer.
+
+playerHands = cell(1, numPlayers);
+dealerHand = [];
+
+% deal 2 cards to each player
+for p = 1:numPlayers
+    [playerHands{p}, deck] = dealCards(deck, playerHands{p});
+    [playerHands{p}, deck] = dealCards(deck, playerHands{p});
+end
+
+% deal 2 cards to dealer
+[dealerHand, deck] = dealCards(deck, dealerHand);
+[dealerHand, deck] = dealCards(deck, dealerHand);
 end
 
 function [hand, shuffledDeck] = dealCards(shuffledDeck, hand)
@@ -265,6 +253,8 @@ function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman, playerHand
             % Display results after hitting
             playerHands{playerIndex} = hand;
             showTable(playerHands, dealerHand, true);
+            % Pause for readability
+            pause(1);
         end
     else
         % bot: dealer rules
@@ -303,9 +293,22 @@ function showTable(playerHands, dealerHand, hideDealerHoleCard)
     end
 end
 
+%{ 
+Original Pseudocode:
 
+%% Blackjack Pseudocode
 
-%{
+clear
+clc
+
+%% Player input initialization
+% Need inputs for how many players and initial $
+% Need larger loop for how long to play
+% Initialize player variables
+
+%% Game Initialization
+myDeck=innitDeck();
+playingDeck=shuffleDeck(myDeck);
 %% Main Loop
 while(number of players>0 or players decide to end)
 
@@ -323,6 +326,16 @@ end
 
 
 %% my local functions
+function shuffledDeck=shuffleDeck(myDeck)
+% use randperm to shuffle deck, numbers 1-52
+% return shuffled deck
+end
+
+function myDeck=innitDeck()
+% create a loop for each suit
+% should my deck be: array, tables, structures
+% Align card values, suits
+end
 
 function [updatedPlayer, updatedDeck]=dealCards(shuffledDeck, player)
 % think about player variable: arrays, tables, structures
