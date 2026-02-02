@@ -183,7 +183,7 @@ function [playerHands, dealerHand, deck] = dealInitialHands(deck, numPlayers)
 %    deck       - shuffled deck of cards
 %    numPlayers - number of players in the game
 % Outputs:
-%    playerHands - cell array of player hands
+%    playerHands - array of player hands
 %    dealerHand  - dealer's hand
 %    deck        - updated deck after dealing
 
