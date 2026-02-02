@@ -1,11 +1,10 @@
 %% Blackjack Code
 
-clear all
-clc
+clear all % Clear workspace variables
+clc       % Clear command window
 
 %% Setup
-
-% Rules to be shown once at start
+% Display the rules of Blackjack once the program runs:
 
 fprintf('\nBLACKJACK RULES: \n');
 fprintf('Goal: Get as close to 21 as possible without going over\n');
@@ -25,55 +24,55 @@ fprintf('  \n'); % for spacing
 fprintf('  \n');
 
 
-% setup begining of play
-
+%% Initialize the start of the program
+% Prompt the user for the number of players (players must be 2 or greater)
 numPlayers = input('Want to play? Enter the number of players, must be 2 or greater ');
-% Check if the number of players entered is valid
+
+
+% Validate the user's input (must be an integer of 2 or greater)
 while numPlayers < 2 || numPlayers ~= floor(numPlayers) 
     numPlayers = input("Enter a valid number of players. Must be 2 or greater");
 end
 
-keepPlaying = true;
+keepPlaying = true; % Controls whether the game repeats
 
+%% Main game loop
+% Runs one full Blackjack round per iteration:
 while keepPlaying
     
     %% Game Initialization
-    % set the humans vs the bots
-    isHuman = false(1, numPlayers);
-    isHuman(1) = true;
+    % Identify the real player and the bot players:
+    isHuman = false(1, numPlayers); % Logical array for player types
+    isHuman(1) = true;              % Identify that "Player 1" is the real player
     
-    % create deck
+    % Create and shuffle a fresh deck:
     myDeck = innitDeck();
     % shuffle deck
     playingDeck = shuffleDeck(myDeck);
 
-    % Deal the initial hands
+    % Deal the initial hands to the players and dealer:
     [playerHands, dealerHand, playingDeck] = dealInitialHands(playingDeck, numPlayers);
     
-    % Display initial hands
-    
+    % Display each player's starting hand and value:
     for p = 1:numPlayers
         fprintf('Player %d hand: ', p);
         displayHand(playerHands{p});
         fprintf('Value: %d\n\n', handValue(playerHands{p}));
     end
-    
+
+    % Show only the dealer's face-up card:
     fprintf('Dealer shows: ');
     displayHand(dealerHand(1));
     
     %% Playing the game
-    
-    % Play each player's hand. Player 1 is user, players 2, 3, ... are bots
-    
+    % Each player plays their hand in order (note: Player 1 is the real player, Players 2, 3, ... are bots):
     for p = 1:numPlayers
         fprintf('\nPlayer %d Turn\n', p);
         [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p), playerHands, dealerHand, p);
-        % pause makes game more readable
-        pause(1);
+        pause(1); % Pause for 1 second for readability
     end
     
-    % Dealer turn (hit until 17)
-    
+    % Dealer plays according to the dealer rules (hit until >= 17):
     fprintf('\nDealer Turn\n');
     fprintf('Dealer hand: ');
     displayHand(dealerHand);
@@ -81,11 +80,10 @@ while keepPlaying
     
     while handValue(dealerHand) < 17
         [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
-    
         fprintf('Dealer hits: ');
         displayHand(dealerHand);
         fprintf('Value: %d\n', handValue(dealerHand));
-        pause(1);
+        pause(1); % Pause for 1 second for readability
     end
     
     if handValue(dealerHand) > 21
@@ -94,8 +92,7 @@ while keepPlaying
         fprintf('Dealer stands.\n');
     end
     
-    % Evaluate final results
-    
+    % Compare each player's final hand against the dealer:
     dealerVal = handValue(dealerHand);
     
     fprintf('\nFINAL RESULTS\n');
@@ -107,7 +104,8 @@ while keepPlaying
     
         fprintf('Player %d final (%d): ', p, playerVal);
         displayHand(playerHands{p});
-    
+
+        % Determine win/loss/tie conditions:
         if playerVal > 21
             fprintf('-> LOSE (bust)\n\n');
         elseif dealerVal > 21
@@ -121,8 +119,7 @@ while keepPlaying
         end
     end
     
-    % play again prompt
-    
+    % Ask the user whether they want to play another round:
     resp = input('Play again? (y/n): ', 's');
 
     while isempty(resp) || ~(resp(1) == 'y' || resp(1) == 'n')
@@ -130,27 +127,37 @@ while keepPlaying
     end
     
     if resp(1) == 'n'
-        keepPlaying = false;
+        keepPlaying = false; % Exit the main game loop
     end
 end
 
-% Thank the player
+% Thank the user for playing:
 fprintf('\nThank you for playing Blackjack!!!\n');
 
-%% Local Functions:
+
+%% Local Functions
+% This section contains all helper functions used by Blackjack (each function performs a specific task to organize the main script):
 
 function myDeck = innitDeck()
+    % Creates and returns a standard 52-card deck as an array
+    % Each card contains a suit, rank, and Blackjack value
+    % Ace is initialized with a value of 11
 
-    % create a loop for each suit
-    % should my deck be: array, tables, structures
-    % Align card values, suits
-
+    % Define each card suit:
     suits = ["Hearts","Diamonds","Clubs","Spades"];
+
+    % Define each card rank:
     ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+
+    % Define Blackjack values corresponding to each rank:
     values = [11, 2,3,4,5,6,7,8,9,10,10,10,10]; % Ace starts as 11
+
+    % Preallocate deck array for efficiency
     myDeck(52) = struct('suit',"", 'rank',"", 'value',0);
     
-    idx = 1;
+    idx = 1; % Define index to track position in the deck
+
+    % Loops through each suit and rank to build a full deck:
     for s = 1:length(suits)
         for r = 1:length(ranks)
             myDeck(idx).suit = suits(s);
@@ -162,59 +169,92 @@ function myDeck = innitDeck()
 end 
 
 function shuffledDeck = shuffleDeck(myDeck)
-    % use randperm to shuffle deck, numbers 1-52
-    % return shuffled deck
-    % Shuffle deck using randperm (1-52)
-    
+    % Randomly shuffles the input deck of cards
+    % Input: myDeck (array of cards)
+    % Output: shuffledDeck (randomly reordered deck)
+
+    % Generate random permutation of deck indices:
     order = randperm(length(myDeck));
+
+    % Reorder the deck based on random indices:
     shuffledDeck = myDeck(order);
 end
 
 function [playerHands, dealerHand, deck] = dealInitialHands(deck, numPlayers)
-% Deals the initial two cards to each player and two cards to the dealer.
+% Deals the initial two cards to each player and the dealer
+% Inputs:
+%    deck       - shuffled deck of cards
+%    numPlayers - number of players in the game
+% Outputs:
+%    playerHands - cell array of player hands
+%    dealerHand  - dealer's hand
+%    deck        - updated deck after dealing
 
-playerHands = cell(1, numPlayers);
-dealerHand = [];
+    % Initialize player hands as a cell array:
+    playerHands = cell(1, numPlayers);
 
-% deal 2 cards to each player
-for p = 1:numPlayers
-    [playerHands{p}, deck] = dealCards(deck, playerHands{p});
-    [playerHands{p}, deck] = dealCards(deck, playerHands{p});
-end
+    % Initialize dealer hand:
+    dealerHand = [];
 
-% deal 2 cards to dealer
-[dealerHand, deck] = dealCards(deck, dealerHand);
-[dealerHand, deck] = dealCards(deck, dealerHand);
+    % Deal two cards to each player:
+    for p = 1:numPlayers
+        [playerHands{p}, deck] = dealCards(deck, playerHands{p});
+        [playerHands{p}, deck] = dealCards(deck, playerHands{p});
+    end
+
+    % Deal two cards to the dealer:
+    [dealerHand, deck] = dealCards(deck, dealerHand);
+    [dealerHand, deck] = dealCards(deck, dealerHand);
 end
 
 function [hand, shuffledDeck] = dealCards(shuffledDeck, hand)
-    % Take the top card from the deck and add it to the hand.
-    % Remove that card from the deck (shuffledDeck(1)=[]).
-    
+% Deals one card from the top of the deck to a hand
+% Remove the dealt card from the deck
+% Inputs
+%    shuffledDeck - current deck of cards
+%    hand         - current hand
+% Outputs:
+%    shuffledDeck - updated decj wutg tio card removed
+%    hand -       updated hand with new card
+
+    % Add top card of the deck to hand:
     hand = [hand, shuffledDeck(1)];
+
+    % Remove top card from the deck:
     shuffledDeck(1) = [];
 end
 
 function displayHand(hand)
-% Display cards in the command window as "Rank of Suit"
+% Display all cards in a hand in the command window with the format "Rank of Suit"
+    
+    % Loop throug heach card in the hand
     for i = 1:length(hand)
         fprintf('%s of %s', hand(i).rank, hand(i).suit);
+
+        % Add a comma between cards (except the last card):
         if i < length(hand)
             fprintf(', ');
         end
     end
-        fprintf('\n');
+
+    % Move to the next line after displaying hand:
+    fprintf('\n');
 end
 
 function total = handValue(hand)
-    % returns the value of the hand
-    % ace is 11, unless total value > 21, then ace becomes 1
-    
+% Calculates the total Blackjack value of a hand
+% Aces are counted as 11 unless total exceeds 21, in which case Aces are reduced to 1 as needed
+
+    % Extract values from hand:
     vals = [hand.value];
+
+    % Compute initial total:
     total = sum(vals);
     
-    % Ace logic
+    % Count the number of Aces in hand:
     numAces = sum(vals == 11);
+    
+    % Convert Aces from 11 to 1 if total exceeds 21:
     while (total > 21 && numAces > 0)
         % turn ace value from 11 -> 1
         total = total - 10; 
@@ -223,75 +263,78 @@ function total = handValue(hand)
 end
 
 function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman, playerHands, dealerHand, playerIndex)
-    % Human: prompt hit/stand.
-    % Bot: hit until value >= 17.
+% Execute a single player's turn
+% The real player can choose to hit or stand
+% The bot players follow dealer rules (hit until >= 17)
     
     if isHuman
+        % Real player's turn:
         while true
             fprintf('Your hand: ');
             displayHand(hand);
             fprintf('Value: %d\n', handValue(hand));
     
-            % bust check
+            % Check for bust:
             if handValue(hand) > 21
                 fprintf('BUST!\n');
                 break;
             end
-    
+
+            % Prompt the real player's decision to hit or stand:    
             choice = lower(input('Hit or Stand? (h/s): ', 's'));
             while ~(choice == 'h' || choice == 's')
                 choice = lower(input('Enter h or s: ', 's'));
             end
-    
+
+            % Stand ends turn:
             if choice == 's'
                 fprintf('Stand.\n');
                 break;
             end
     
-            % Hit
+            % Hit deals another card
             [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
-            % Display results after hitting
+            
+            % Update the results after hitting:
             playerHands{playerIndex} = hand;
             showTable(playerHands, dealerHand, true);
-            % Pause for readability
-            pause(1);
+            pause(1); % Pause 1 second for readability
         end
     else
-        % bot: dealer rules
+        % Bot players' turn (dealer-rule logic):
         while handValue(hand) < 17
             [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
             playerHands{playerIndex} = hand;
             showTable(playerHands, dealerHand, true);
-            % pause makes game more readable
-            pause(1);
+            pause(1); % Pause 1 second for readability
         end
     
         fprintf('Bot stands with value %d.\n', handValue(hand));
     end
 end
 
-% show table after each hit
-
 function showTable(playerHands, dealerHand, hideDealerHoleCard)
-    % Show current table state.
+% Displays the current game state, including all players' hands and the dealer's hand
+    
     fprintf('\nRESULTS\n');
     
-    % Dealer display
+    % Display dealer's hand:
     fprintf('Dealer: ');
     if hideDealerHoleCard && length(dealerHand) >= 1
-        displayHand(dealerHand(1)); % show only up card
+        displayHand(dealerHand(1)); % Show only face-up card
     else
         displayHand(dealerHand);
         fprintf('Value: %d\n', handValue(dealerHand));
     end
     
-    % Players display
+    % Display each player's hand and value:
     for p = 1:length(playerHands)
         fprintf('Player %d: ', p);
         displayHand(playerHands{p});
         fprintf('Value: %d\n', handValue(playerHands{p}));
     end
 end
+
 
 %{ 
 Original Pseudocode:
