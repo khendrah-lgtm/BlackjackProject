@@ -19,23 +19,26 @@ clc
 % Rules to be shown once at start
 
 fprintf('\nBLACKJACK RULES: \n');
-fprintf('Goal: Get as close to 21 as possible without going over.\n');
-fprintf('Card values: 2-10 = face value, J/Q/K = 10, Ace = 11 or 1.\n');
-fprintf('BUST: If your total goes over 21, you lose immediately.\n');
+fprintf('Goal: Get as close to 21 as possible without going over\n');
+fprintf('Card values: 2-10 = face value, J/Q/K = 10, Ace = 11 or 1\n');
+fprintf('BUST: If your total goes over 21, you lose immediately\n');
 fprintf('Turns:\n');
-fprintf('  - Player 1 (you): choose Hit (h) to take a card or Stand (s) to stop.\n');
-fprintf('  - Other players (bots): hit until total >= 17.\n');
+fprintf('  - Player 1 (you): choose Hit (h) to take a card or Stand (s) to stop\n');
+fprintf('  - Other players (bots): hit until total >= 17\n');
 fprintf('Dealer:\n');
-fprintf('  - Dealer hits until total >= 17.\n');
+fprintf('  - Dealer hits until total >= 17\n');
 fprintf('Winning:\n');
-fprintf('  - If you bust: you lose.\n');
-fprintf('  - If dealer busts and you do not: you win.\n');
-fprintf('  - Otherwise higher total wins.\n');
-fprintf('  - Equal totals = PUSH (tie).\n');
+fprintf('  - If you bust: you lose\n');
+fprintf('  - If dealer busts and you do not: you win\n');
+fprintf('  - Otherwise higher total wins\n');
+fprintf('  - Equal totals = PUSH (tie)\n');
+fprintf('  \n'); % for spacing
+fprintf('  \n');
+
 
 % setup begining of play
 
-numPlayers = input('Enter the number of players, must be 2 or greater ');
+numPlayers = input('Want to play? Enter the number of players, must be 2 or greater ');
 % Check if the number of players entered is valid
 while numPlayers < 2 || numPlayers ~= floor(numPlayers) 
     numPlayers = input("Enter a valid number of players. Must be 2 or greater");
@@ -87,6 +90,8 @@ while keepPlaying
     for p = 1:numPlayers
         fprintf('\nPlayer %d Turn\n', p);
         [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p), playerHands, dealerHand, p);
+        % pause makes game more readable
+        pause(1);
     end
 
     % Auto win condition, if a player hits a blackjack
@@ -118,11 +123,11 @@ while keepPlaying
         fprintf('Dealer stands.\n');
     end
     
-    % Evaluate results
+    % Evaluate final results
     
     dealerVal = handValue(dealerHand);
     
-    fprintf('\nRESULTS\n');
+    fprintf('\nFINAL RESULTS\n');
     fprintf('Dealer final (%d): ', dealerVal);
     displayHand(dealerHand);
     
@@ -267,6 +272,8 @@ function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman, playerHand
             [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
             playerHands{playerIndex} = hand;
             showTable(playerHands, dealerHand, true);
+            % pause makes game more readable
+            pause(1);
         end
     
         fprintf('Bot stands with value %d.\n', handValue(hand));
@@ -277,7 +284,7 @@ end
 
 function showTable(playerHands, dealerHand, hideDealerHoleCard)
     % Show current table state.
-    fprintf('\nTABLE\n');
+    fprintf('\nRESULTS\n');
     
     % Dealer display
     fprintf('Dealer: ');
