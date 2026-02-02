@@ -51,6 +51,7 @@ end
 for p = 1:numPlayers
     fprintf('Player %d hand: ', p);
     displayHand(playerHands{p});
+    fprintf('Value: %d\n\n', handValue(playerHands{p}));
 end
 
 fprintf('Dealer shows: ');
@@ -106,6 +107,22 @@ function displayHand(hand)
         end
     end
         fprintf('\n');
+end
+
+function total = handValue(hand)
+    % returns the value of the hand
+    % ace is 11, unless total value > 21, then ace becomes 1
+    
+    vals = [hand.value];
+    total = sum(vals);
+    
+    % Ace logic
+    numAces = sum(vals == 11);
+    while (total > 21 && numAces > 0)
+        % turn ace value from 11 -> 1
+        total = total - 10; 
+        numAces = numAces - 1;
+    end
 end
 
 %{
