@@ -5,7 +5,6 @@ clc       % Clear command window
 
 %% Setup
 % Display the rules of Blackjack once the program runs:
-
 fprintf('\nBLACKJACK RULES: \n');
 fprintf('Goal: Get as close to 21 as possible without going over\n');
 fprintf('Card values: 2-10 = face value, J/Q/K = 10, Ace = 11 or 1\n');
@@ -23,11 +22,9 @@ fprintf('  - Equal totals = PUSH (tie)\n');
 fprintf('  \n'); % for spacing
 fprintf('  \n');
 
-
 %% Initialize the start of the program
 % Prompt the user for the number of players (players must be 2 or greater)
 numPlayers = input('Want to play? Enter the number of players, must be 2 or greater ');
-
 
 % Validate the user's input (must be an integer of 2 or greater)
 while numPlayers < 2 || numPlayers ~= floor(numPlayers) 
@@ -336,7 +333,6 @@ function showTable(playerHands, dealerHand, hideDealerHoleCard)
 end
 
 
-
 %{ 
 Original Pseudocode:
 
@@ -355,7 +351,6 @@ myDeck=innitDeck();
 playingDeck=shuffleDeck(myDeck);
 %% Main Loop
 while(number of players>0 or players decide to end)
-
 
 % take initial bets
 playingDeck=shuffleDeck(myDeck)
