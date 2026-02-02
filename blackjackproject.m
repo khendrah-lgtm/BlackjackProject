@@ -1,4 +1,4 @@
-%% Blackjack Pseudocode
+%% Blackjack Code
 
 clear
 clc
@@ -24,9 +24,6 @@ keepPlaying = true;
 
 while keepPlaying
     
-    % reset hands each round
-    playerHands = cell(1, numPlayers);
-    dealerHand = [];
     %% Game Initialization
     % set the humans vs the bots
     isHuman = false(1, numPlayers);
@@ -68,6 +65,14 @@ while keepPlaying
     
     for p = 1:numPlayers
         fprintf('\n=== Player %d Turn ===\n', p);
+        [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
+    end
+
+    % Auto win condition, if a player hits a blackjack
+
+    if handValue(playerHands{p}) == 21
+        fprintf('Player %d has BLACKJACK!\n', p);
+    else
         [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
     end
     
@@ -121,15 +126,19 @@ while keepPlaying
     
     % play again prompt
     
-    resp = lower(input('Play again? (y/n): ', 's'));
-    while ~(resp == "y" || resp == "n")
-        resp = lower(input('Enter y or n: ', 's'));
+    resp = input('Play again? (y/n): ', 's');
+
+    while isempty(resp) || ~(resp(1) == 'y' || resp(1) == 'n')
+        resp = input('Enter y or n: ', 's');
     end
     
-    if resp == "n"
+    if resp(1) == 'n'
         keepPlaying = false;
     end
 end
+
+% Thank the player
+fprintf('\nThank you for playing Blackjack!!!\n');
 
 %% Local Functions:
 
@@ -216,11 +225,11 @@ function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman)
             end
     
             choice = lower(input('Hit or Stand? (h/s): ', 's'));
-            while ~(choice == "h" || choice == "s")
+            while ~(choice == 'h' || choice == 's')
                 choice = lower(input('Enter h or s: ', 's'));
             end
     
-            if choice == "s"
+            if choice == 's'
                 fprintf('Stand.\n');
                 break;
             end
