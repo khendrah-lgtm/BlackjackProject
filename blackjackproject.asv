@@ -1,4 +1,4 @@
-%% Blackjack Pseudocode
+%% Blackjack Code
 
 clear
 clc
@@ -14,6 +14,28 @@ clc
     % - player 1 is the user
     % - player 2 is a bot
 
+%% Setup
+
+% Rules to be shown once at start
+
+fprintf('\n=== BLACKJACK RULES (This Progr ===\n');
+fprintf('Goal: Get as close to 21 as possible without going over.\n');
+fprintf('Card values: 2-10 = face value, J/Q/K = 10, Ace = 11 or 1.\n');
+fprintf('BUST: If your total goes over 21, you lose immediately.\n');
+fprintf('Turns:\n');
+fprintf('  - Player 1 (you): choose Hit (h) to take a card or Stand (s) to stop.\n');
+fprintf('  - Other players (bots): hit until total >= 17.\n');
+fprintf('Dealer:\n');
+fprintf('  - Dealer hits until total >= 17.\n');
+fprintf('Winning:\n');
+fprintf('  - If you bust: you lose.\n');
+fprintf('  - If dealer busts and you do not: you win.\n');
+fprintf('  - Otherwise higher total wins.\n');
+fprintf('  - Equal totals = PUSH (tie).\n');
+fprintf('=====================================\n\n');
+
+% setup begining of play
+
 numPlayers = input('Enter the number of players, must be 2 or greater ');
 % Check if the number of players entered is valid
 while numPlayers < 2 || numPlayers ~= floor(numPlayers) 
@@ -22,68 +44,123 @@ end
 
 keepPlaying = true;
 
-%% Game Initialization
-% set the humans vs the bots
-isHuman = false(1, numPlayers);
-isHuman(1) = true;
-
-% create deck
-myDeck = innitDeck();
-% shuffle deck
-playingDeck = shuffleDeck(myDeck);
-
-% hands: each player gets a struct array of cards
-playerHands = cell(1, numPlayers);
-dealerHand = [];
-
-% deal 2 cards to each player
-for p = 1:numPlayers
-    [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
-    [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
-end
-
-% deal 2 cards to dealer
-[dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
-[dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
-
-% Display initial hands
-
-for p = 1:numPlayers
-    fprintf('Player %d hand: ', p);
-    displayHand(playerHands{p});
-    fprintf('Value: %d\n\n', handValue(playerHands{p}));
-end
-
-fprintf('Dealer shows: ');
-displayHand(dealerHand(1));
-
-% Play each player's hand. Player 1 is user, players 2, 3, ... are bots
-
-for p = 1:numPlayers
-    fprintf('\n=== Player %d Turn ===\n', p);
-    [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
-end
-
-% Dealer turn (hit until 17)
-
-fprintf('\n=== Dealer Turn ===\n');
-fprintf('Dealer hand: ');
-displayHand(dealerHand);
-fprintf('Value: %d\n', handValue(dealerHand));
-
-while handValue(dealerHand) < 17
+while keepPlaying
+    
+    %% Game Initialization
+    % set the humans vs the bots
+    isHuman = false(1, numPlayers);
+    isHuman(1) = true;
+    
+    % create deck
+    myDeck = innitDeck();
+    % shuffle deck
+    playingDeck = shuffleDeck(myDeck);
+    
+    % hands: each player gets a struct array of cards
+    playerHands = cell(1, numPlayers);
+    dealerHand = [];
+    
+    % deal 2 cards to each player
+    for p = 1:numPlayers
+        [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
+        [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
+    end
+    
+    % deal 2 cards to dealer
     [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+    [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+    
+    % Display initial hands
+    
+    for p = 1:numPlayers
+        fprintf('Player %d hand: ', p);
+        displayHand(playerHands{p});
+        fprintf('Value: %d\n\n', handValue(playerHands{p}));
+    end
+    
+    fprintf('Dealer shows: ');
+    displayHand(dealerHand(1));
+    
+    %% Playing the game
+    
+    % Play each player's hand. Player 1 is user, players 2, 3, ... are bots
+    
+    for p = 1:numPlayers
+        fprintf('\n=== Player %d Turn ===\n', p);
+        [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p), playerHands, dealerHand, p);
+    end
 
-    fprintf('Dealer hits: ');
+    % Auto win condition, if a player hits a blackjack
+
+    if handValue(playerHands{p}) == 21
+        fprintf('Player %d has BLACKJACK!\n', p);
+    else
+        [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
+    end
+    
+    % Dealer turn (hit until 17)
+    
+    fprintf('\n=== Dealer Turn ===\n');
+    fprintf('Dealer hand: ');
     displayHand(dealerHand);
     fprintf('Value: %d\n', handValue(dealerHand));
+    
+    while handValue(dealerHand) < 17
+        [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+    
+        fprintf('Dealer hits: ');
+        displayHand(dealerHand);
+        fprintf('Value: %d\n', handValue(dealerHand));
+    end
+    
+    if handValue(dealerHand) > 21
+        fprintf('Dealer BUSTS!\n');
+    else
+        fprintf('Dealer stands.\n');
+    end
+    
+    % Evaluate results
+    
+    dealerVal = handValue(dealerHand);
+    
+    fprintf('\n=== RESULTS ===\n');
+    fprintf('Dealer final (%d): ', dealerVal);
+    displayHand(dealerHand);
+    
+    for p = 1:numPlayers
+        playerVal = handValue(playerHands{p});
+    
+        fprintf('Player %d final (%d): ', p, playerVal);
+        displayHand(playerHands{p});
+    
+        if playerVal > 21
+            fprintf('-> LOSE (bust)\n\n');
+        elseif dealerVal > 21
+            fprintf('-> WIN (dealer bust)\n\n');
+        elseif playerVal > dealerVal
+            fprintf('-> WIN\n\n');
+        elseif playerVal < dealerVal
+            fprintf('-> LOSE\n\n');
+        else
+            fprintf('-> PUSH\n\n');
+        end
+    end
+    
+    % play again prompt
+    
+    resp = input('Play again? (y/n): ', 's');
+
+    while isempty(resp) || ~(resp(1) == 'y' || resp(1) == 'n')
+        resp = input('Enter y or n: ', 's');
+    end
+    
+    if resp(1) == 'n'
+        keepPlaying = false;
+    end
 end
 
-if handValue(dealerHand) > 21
-    fprintf('Dealer BUSTS!\n');
-else
-    fprintf('Dealer stands.\n');
-end
+% Thank the player
+fprintf('\nThank you for playing Blackjack!!!\n');
 
 %% Local Functions:
 
@@ -152,6 +229,77 @@ function total = handValue(hand)
         numAces = numAces - 1;
     end
 end
+
+function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman, playerHands, dealerHand, playerIndex)
+    % Human: prompt hit/stand.
+    % Bot: hit until value >= 17.
+    
+    if isHuman
+        while true
+            fprintf('Your hand: ');
+            displayHand(hand);
+            fprintf('Value: %d\n', handValue(hand));
+    
+            % bust check
+            if handValue(hand) > 21
+                fprintf('BUST!\n');
+                break;
+            end
+    
+            choice = lower(input('Hit or Stand? (h/s): ', 's'));
+            while ~(choice == 'h' || choice == 's')
+                choice = lower(input('Enter h or s: ', 's'));
+            end
+    
+            if choice == 's'
+                fprintf('Stand.\n');
+                break;
+            end
+    
+            % Hit
+            [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
+            % Display results after hitting
+            playerHands{playerIndex} = hand;
+            showTable(playerHands, dealerHand, true);
+        end
+    else
+        % bot: dealer rules
+        while handValue(hand) < 17
+            [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
+            playerHands{playerIndex} = hand;
+            showTable(playerHands, dealerHand, true);
+        end
+    
+        fprintf('Bot stands with value %d.\n', handValue(hand));
+    end
+end
+
+% show table after each hit
+
+function showTable(playerHands, dealerHand, hideDealerHoleCard)
+% Show current table state.
+fprintf('\n--- TABLE ---\n');
+
+% Dealer display
+fprintf('Dealer: ');
+if hideDealerHoleCard && length(dealerHand) >= 1
+    displayHand(dealerHand(1)); % show only up card
+else
+    displayHand(dealerHand);
+    fprintf('Value: %d\n', handValue(dealerHand));
+end
+
+% Players display
+for p = 1:length(playerHands)
+    fprintf('Player %d: ', p);
+    displayHand(playerHands{p});
+    fprintf('Value: %d\n', handValue(playerHands{p}));
+end
+
+fprintf('------------\n\n');
+end
+
+
 
 %{
 %% Main Loop

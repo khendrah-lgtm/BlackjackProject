@@ -14,6 +14,27 @@ clc
     % - player 1 is the user
     % - player 2 is a bot
 
+%% Setup
+
+% Rules to be shown once at start
+
+fprintf('\nBLACKJACK RULES: \n');
+fprintf('Goal: Get as close to 21 as possible without going over.\n');
+fprintf('Card values: 2-10 = face value, J/Q/K = 10, Ace = 11 or 1.\n');
+fprintf('BUST: If your total goes over 21, you lose immediately.\n');
+fprintf('Turns:\n');
+fprintf('  - Player 1 (you): choose Hit (h) to take a card or Stand (s) to stop.\n');
+fprintf('  - Other players (bots): hit until total >= 17.\n');
+fprintf('Dealer:\n');
+fprintf('  - Dealer hits until total >= 17.\n');
+fprintf('Winning:\n');
+fprintf('  - If you bust: you lose.\n');
+fprintf('  - If dealer busts and you do not: you win.\n');
+fprintf('  - Otherwise higher total wins.\n');
+fprintf('  - Equal totals = PUSH (tie).\n');
+
+% setup begining of play
+
 numPlayers = input('Enter the number of players, must be 2 or greater ');
 % Check if the number of players entered is valid
 while numPlayers < 2 || numPlayers ~= floor(numPlayers) 
@@ -64,8 +85,8 @@ while keepPlaying
     % Play each player's hand. Player 1 is user, players 2, 3, ... are bots
     
     for p = 1:numPlayers
-        fprintf('\n=== Player %d Turn ===\n', p);
-        [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
+        fprintf('\nPlayer %d Turn\n', p);
+        [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p), playerHands, dealerHand, p);
     end
 
     % Auto win condition, if a player hits a blackjack
@@ -78,7 +99,7 @@ while keepPlaying
     
     % Dealer turn (hit until 17)
     
-    fprintf('\n=== Dealer Turn ===\n');
+    fprintf('\nDealer Turn\n');
     fprintf('Dealer hand: ');
     displayHand(dealerHand);
     fprintf('Value: %d\n', handValue(dealerHand));
@@ -101,7 +122,7 @@ while keepPlaying
     
     dealerVal = handValue(dealerHand);
     
-    fprintf('\n=== RESULTS ===\n');
+    fprintf('\nRESULTS\n');
     fprintf('Dealer final (%d): ', dealerVal);
     displayHand(dealerHand);
     
@@ -208,7 +229,7 @@ function total = handValue(hand)
     end
 end
 
-function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman)
+function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman, playerHands, dealerHand, playerIndex)
     % Human: prompt hit/stand.
     % Bot: hit until value >= 17.
     
@@ -236,16 +257,45 @@ function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman)
     
             % Hit
             [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
+            % Display results after hitting
+            playerHands{playerIndex} = hand;
+            showTable(playerHands, dealerHand, true);
         end
     else
         % bot: dealer rules
         while handValue(hand) < 17
             [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
+            playerHands{playerIndex} = hand;
+            showTable(playerHands, dealerHand, true);
         end
     
         fprintf('Bot stands with value %d.\n', handValue(hand));
     end
 end
+
+% show table after each hit
+
+function showTable(playerHands, dealerHand, hideDealerHoleCard)
+    % Show current table state.
+    fprintf('\nTABLE\n');
+    
+    % Dealer display
+    fprintf('Dealer: ');
+    if hideDealerHoleCard && length(dealerHand) >= 1
+        displayHand(dealerHand(1)); % show only up card
+    else
+        displayHand(dealerHand);
+        fprintf('Value: %d\n', handValue(dealerHand));
+    end
+    
+    % Players display
+    for p = 1:length(playerHands)
+        fprintf('Player %d: ', p);
+        displayHand(playerHands{p});
+        fprintf('Value: %d\n', handValue(playerHands{p}));
+    end
+end
+
 
 
 %{
