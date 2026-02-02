@@ -57,7 +57,33 @@ end
 fprintf('Dealer shows: ');
 displayHand(dealerHand(1));
 
-% Play each player's hand. Player 1 is user, players 2, 3, ... are 
+% Play each player's hand. Player 1 is user, players 2, 3, ... are bots
+
+for p = 1:numPlayers
+    fprintf('\n=== Player %d Turn ===\n', p);
+    [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
+end
+
+% Dealer turn (hit until 17)
+
+fprintf('\n=== Dealer Turn ===\n');
+fprintf('Dealer hand: ');
+displayHand(dealerHand);
+fprintf('Value: %d\n', handValue(dealerHand));
+
+while handValue(dealerHand) < 17
+    [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+
+    fprintf('Dealer hits: ');
+    displayHand(dealerHand);
+    fprintf('Value: %d\n', handValue(dealerHand));
+end
+
+if handValue(dealerHand) > 21
+    fprintf('Dealer BUSTS!\n');
+else
+    fprintf('Dealer stands.\n');
+end
 
 %% Local Functions:
 

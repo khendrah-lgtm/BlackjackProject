@@ -22,6 +22,11 @@ end
 
 keepPlaying = true;
 
+while keepPlaying
+
+% reset hands each round
+playerHands = cell(1, numPlayers);
+dealerHand = [];
 %% Game Initialization
 % set the humans vs the bots
 isHuman = false(1, numPlayers);
@@ -57,6 +62,8 @@ end
 fprintf('Dealer shows: ');
 displayHand(dealerHand(1));
 
+%% Playing the game
+
 % Play each player's hand. Player 1 is user, players 2, 3, ... are bots
 
 for p = 1:numPlayers
@@ -64,7 +71,7 @@ for p = 1:numPlayers
     [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
 end
 
-%% Dealer turn (hit until 17)
+% Dealer turn (hit until 17)
 
 fprintf('\n=== Dealer Turn ===\n');
 fprintf('Dealer hand: ');
@@ -83,6 +90,33 @@ if handValue(dealerHand) > 21
     fprintf('Dealer BUSTS!\n');
 else
     fprintf('Dealer stands.\n');
+end
+
+% Evaluate results
+
+dealerVal = handValue(dealerHand);
+
+fprintf('\n=== RESULTS ===\n');
+fprintf('Dealer final (%d): ', dealerVal);
+displayHand(dealerHand);
+
+for p = 1:numPlayers
+    playerVal = handValue(playerHands{p});
+
+    fprintf('Player %d final (%d): ', p, playerVal);
+    displayHand(playerHands{p});
+
+    if playerVal > 21
+        fprintf('-> LOSE (bust)\n\n');
+    elseif dealerVal > 21
+        fprintf('-> WIN (dealer bust)\n\n');
+    elseif playerVal > dealerVal
+        fprintf('-> WIN\n\n');
+    elseif playerVal < dealerVal
+        fprintf('-> LOSE\n\n');
+    else
+        fprintf('-> PUSH\n\n');
+    end
 end
 
 %% Local Functions:
@@ -152,6 +186,46 @@ function total = handValue(hand)
         numAces = numAces - 1;
     end
 end
+
+function [hand, shuffledDeck] = playHand(hand, shuffledDeck, isHuman)
+    % Human: prompt hit/stand.
+    % Bot: hit until value >= 17.
+    
+    if isHuman
+        while true
+            fprintf('Your hand: ');
+            displayHand(hand);
+            fprintf('Value: %d\n', handValue(hand));
+    
+            % bust check
+            if handValue(hand) > 21
+                fprintf('BUST!\n');
+                break;
+            end
+    
+            choice = lower(input('Hit or Stand? (h/s): ', 's'));
+            while ~(choice == "h" || choice == "s")
+                choice = lower(input('Enter h or s: ', 's'));
+            end
+    
+            if choice == "s"
+                fprintf('Stand.\n');
+                break;
+            end
+    
+            % Hit
+            [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
+        end
+    else
+        % bot: dealer rules
+        while handValue(hand) < 17
+            [hand, shuffledDeck] = dealCards(shuffledDeck, hand);
+        end
+    
+        fprintf('Bot stands with value %d.\n', handValue(hand));
+    end
+end
+
 
 %{
 %% Main Loop
