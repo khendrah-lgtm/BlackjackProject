@@ -23,99 +23,111 @@ end
 keepPlaying = true;
 
 while keepPlaying
-
-% reset hands each round
-playerHands = cell(1, numPlayers);
-dealerHand = [];
-%% Game Initialization
-% set the humans vs the bots
-isHuman = false(1, numPlayers);
-isHuman(1) = true;
-
-% create deck
-myDeck = innitDeck();
-% shuffle deck
-playingDeck = shuffleDeck(myDeck);
-
-% hands: each player gets a struct array of cards
-playerHands = cell(1, numPlayers);
-dealerHand = [];
-
-% deal 2 cards to each player
-for p = 1:numPlayers
-    [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
-    [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
-end
-
-% deal 2 cards to dealer
-[dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
-[dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
-
-% Display initial hands
-
-for p = 1:numPlayers
-    fprintf('Player %d hand: ', p);
-    displayHand(playerHands{p});
-    fprintf('Value: %d\n\n', handValue(playerHands{p}));
-end
-
-fprintf('Dealer shows: ');
-displayHand(dealerHand(1));
-
-%% Playing the game
-
-% Play each player's hand. Player 1 is user, players 2, 3, ... are bots
-
-for p = 1:numPlayers
-    fprintf('\n=== Player %d Turn ===\n', p);
-    [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
-end
-
-% Dealer turn (hit until 17)
-
-fprintf('\n=== Dealer Turn ===\n');
-fprintf('Dealer hand: ');
-displayHand(dealerHand);
-fprintf('Value: %d\n', handValue(dealerHand));
-
-while handValue(dealerHand) < 17
+    
+    % reset hands each round
+    playerHands = cell(1, numPlayers);
+    dealerHand = [];
+    %% Game Initialization
+    % set the humans vs the bots
+    isHuman = false(1, numPlayers);
+    isHuman(1) = true;
+    
+    % create deck
+    myDeck = innitDeck();
+    % shuffle deck
+    playingDeck = shuffleDeck(myDeck);
+    
+    % hands: each player gets a struct array of cards
+    playerHands = cell(1, numPlayers);
+    dealerHand = [];
+    
+    % deal 2 cards to each player
+    for p = 1:numPlayers
+        [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
+        [playerHands{p}, playingDeck] = dealCards(playingDeck, playerHands{p});
+    end
+    
+    % deal 2 cards to dealer
     [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
-
-    fprintf('Dealer hits: ');
+    [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+    
+    % Display initial hands
+    
+    for p = 1:numPlayers
+        fprintf('Player %d hand: ', p);
+        displayHand(playerHands{p});
+        fprintf('Value: %d\n\n', handValue(playerHands{p}));
+    end
+    
+    fprintf('Dealer shows: ');
+    displayHand(dealerHand(1));
+    
+    %% Playing the game
+    
+    % Play each player's hand. Player 1 is user, players 2, 3, ... are bots
+    
+    for p = 1:numPlayers
+        fprintf('\n=== Player %d Turn ===\n', p);
+        [playerHands{p}, playingDeck] = playHand(playerHands{p}, playingDeck, isHuman(p));
+    end
+    
+    % Dealer turn (hit until 17)
+    
+    fprintf('\n=== Dealer Turn ===\n');
+    fprintf('Dealer hand: ');
     displayHand(dealerHand);
     fprintf('Value: %d\n', handValue(dealerHand));
-end
-
-if handValue(dealerHand) > 21
-    fprintf('Dealer BUSTS!\n');
-else
-    fprintf('Dealer stands.\n');
-end
-
-% Evaluate results
-
-dealerVal = handValue(dealerHand);
-
-fprintf('\n=== RESULTS ===\n');
-fprintf('Dealer final (%d): ', dealerVal);
-displayHand(dealerHand);
-
-for p = 1:numPlayers
-    playerVal = handValue(playerHands{p});
-
-    fprintf('Player %d final (%d): ', p, playerVal);
-    displayHand(playerHands{p});
-
-    if playerVal > 21
-        fprintf('-> LOSE (bust)\n\n');
-    elseif dealerVal > 21
-        fprintf('-> WIN (dealer bust)\n\n');
-    elseif playerVal > dealerVal
-        fprintf('-> WIN\n\n');
-    elseif playerVal < dealerVal
-        fprintf('-> LOSE\n\n');
+    
+    while handValue(dealerHand) < 17
+        [dealerHand, playingDeck] = dealCards(playingDeck, dealerHand);
+    
+        fprintf('Dealer hits: ');
+        displayHand(dealerHand);
+        fprintf('Value: %d\n', handValue(dealerHand));
+    end
+    
+    if handValue(dealerHand) > 21
+        fprintf('Dealer BUSTS!\n');
     else
-        fprintf('-> PUSH\n\n');
+        fprintf('Dealer stands.\n');
+    end
+    
+    % Evaluate results
+    
+    dealerVal = handValue(dealerHand);
+    
+    fprintf('\n=== RESULTS ===\n');
+    fprintf('Dealer final (%d): ', dealerVal);
+    displayHand(dealerHand);
+    
+    for p = 1:numPlayers
+        playerVal = handValue(playerHands{p});
+    
+        fprintf('Player %d final (%d): ', p, playerVal);
+        displayHand(playerHands{p});
+    
+        if playerVal > 21
+            fprintf('-> LOSE (bust)\n\n');
+        elseif dealerVal > 21
+            fprintf('-> WIN (dealer bust)\n\n');
+        elseif playerVal > dealerVal
+            fprintf('-> WIN\n\n');
+        elseif playerVal < dealerVal
+            fprintf('-> LOSE\n\n');
+        else
+            fprintf('-> PUSH\n\n');
+        end
+    end
+    
+    % play again prompt
+    
+    resp = lower(input('Play again? (y/n): ', 's'));
+    while ~(resp == "y" || resp == "n")
+        resp = lower(input('Enter y or n: ', 's'));
+    end
+    
+    if resp == "n"
+        keepPlaying = false;
     end
 end
 
